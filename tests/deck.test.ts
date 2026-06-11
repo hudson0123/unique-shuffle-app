@@ -111,4 +111,11 @@ describe('hashSequence', () => {
     const seq = Array.from({ length: 52 }, (_, i) => i);
     expect(hashSequence(seq)).toMatch(/^[0-9a-f]{64}$/);
   });
+
+  it('produces the known SHA-256 for the sorted deck', () => {
+    const seq = Array.from({ length: 52 }, (_, i) => i);
+    expect(hashSequence(seq)).toBe(
+      '47e8318fa73d6f32ce282fc87dd446c17298fb75c9ba6aca1262e8e9021b7914',
+    );
+  });
 });

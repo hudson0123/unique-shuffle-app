@@ -59,6 +59,7 @@ export function isValidSequence(seq: unknown): seq is number[] {
   return true;
 }
 
+/** Caller must pass a sequence that has already been validated via isValidSequence. */
 export function hashSequence(seq: number[]): string {
   return createHash('sha256').update(seq.join(',')).digest('hex');
 }
