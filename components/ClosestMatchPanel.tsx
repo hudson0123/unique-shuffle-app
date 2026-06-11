@@ -1,18 +1,11 @@
 import { VisualStrip } from './VisualStrip';
 import type { ClosestMatch } from '@/lib/closest';
+import { formatDate } from '@/lib/formatDate';
 
 type Props = {
   target: number[];
   closest: ClosestMatch | null;
 };
-
-function formatDate(d: Date): string {
-  return d.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
 
 export function ClosestMatchPanel({ target, closest }: Props) {
   if (closest === null) {

@@ -35,4 +35,11 @@ export async function recordAndCheckRateLimit(
   if (newCount > RATE_LIMIT_PER_HOUR) {
     throw new RateLimitError();
   }
+
+  // Lazy cleanup: remove old buckets for this IP (fire-and-forget for cost).
+  await db
+    .delete(rateLimits)
+    .where(
+      sql`${rateLimits.ip} = ${ip} AND ${rateLimits.windowStart} < now() - interval '24 hours'`,
+    );
 }

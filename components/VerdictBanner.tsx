@@ -1,17 +1,10 @@
 import { RARITY_PARAGRAPH } from '@/lib/constants';
+import { formatDate } from '@/lib/formatDate';
 
 type Props =
   | { kind: 'new'; submissionNumber: number }
   | { kind: 'match'; originalNumber: number; originalDate: Date }
   | { kind: 'permalink'; submissionNumber: number; recordedDate: Date };
-
-function formatDate(d: Date): string {
-  return d.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
 
 export function VerdictBanner(props: Props) {
   let headline: string;

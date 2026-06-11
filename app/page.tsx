@@ -84,8 +84,8 @@ export default function Home() {
     setError(null);
     startTransition(async () => {
       try {
+        window.localStorage.removeItem(STORAGE_KEY);
         await submitShuffle(state.placed);
-        // Server action redirects; if we reach here the redirect happened.
       } catch (e) {
         setError(
           e instanceof Error
