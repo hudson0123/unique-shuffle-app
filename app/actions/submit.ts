@@ -1,9 +1,8 @@
 'use server';
 
 import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
 import { getDb } from '@/lib/db';
-import { submitShuffleAgainst } from '@/lib/submitCore';
+import { submitShuffleAgainst, type SubmitResult } from '@/lib/submitCore';
 
 function readIp(headerList: Headers): string {
   const forwarded = headerList.get('x-forwarded-for');
@@ -13,10 +12,9 @@ function readIp(headerList: Headers): string {
   return '0.0.0.0';
 }
 
-export async function submitShuffle(sequence: number[]): Promise<void> {
+export async function submitShuffle(sequence: number[]): Promise<SubmitResult> {
   const headerList = await headers();
   const ip = readIp(headerList);
   const db = getDb();
-  const result = await submitShuffleAgainst(db, sequence, ip);
-  redirect(`/result/${result.hash}?via=${result.via}`);
+  return submitShuffleAgainst(db, sequence, ip);
 }

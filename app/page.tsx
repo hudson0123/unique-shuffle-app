@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useReducer, useRef, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { CardGrid } from '@/components/CardGrid';
 import { PlacedList } from '@/components/PlacedList';
 import {
@@ -37,6 +38,7 @@ export default function Home() {
   const [state, dispatch] = useReducer(reducePlacement, undefined, loadInitial);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
   const submitRef = useRef<HTMLButtonElement | null>(null);
   const wasComplete = useRef(false);
 
@@ -85,7 +87,8 @@ export default function Home() {
     startTransition(async () => {
       try {
         window.localStorage.removeItem(STORAGE_KEY);
-        await submitShuffle(state.placed);
+        const result = await submitShuffle(state.placed);
+        router.push(`/result/${result.hash}?via=${result.via}`);
       } catch (e) {
         setError(
           e instanceof Error
