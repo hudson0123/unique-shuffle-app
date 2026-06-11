@@ -3,6 +3,7 @@ import {
   initialPlacement,
   reducePlacement,
   isComplete,
+  placedSet,
   type PlacementState,
 } from '@/lib/placementMachine';
 
@@ -38,6 +39,23 @@ describe('reducePlacement: PLACE', () => {
   it('does nothing if card is out of range', () => {
     expect(reducePlacement(empty, { type: 'PLACE', card: -1 })).toBe(empty);
     expect(reducePlacement(empty, { type: 'PLACE', card: 52 })).toBe(empty);
+  });
+
+  it('does nothing when 52 cards already placed even with HYDRATE-loaded state', () => {
+    const fullSeq = Array.from({ length: 52 }, (_, i) => i);
+    const full = reducePlacement(empty, { type: 'HYDRATE', placed: fullSeq });
+    expect(full.placed.length).toBe(52);
+    // Pop the last card, then attempt to place a different, fresh card to fill the slot.
+    const popped = reducePlacement(full, { type: 'UNDO' });
+    expect(popped.placed.length).toBe(51);
+    // Now try to place a card that's already used elsewhere - should be no-op by duplicate guard.
+    expect(reducePlacement(popped, { type: 'PLACE', card: 0 })).toBe(popped);
+    // Refill with the missing card.
+    const refilled = reducePlacement(popped, { type: 'PLACE', card: 51 });
+    expect(refilled.placed.length).toBe(52);
+    // Attempt to place any card while full - must fail by full-deck guard.
+    // (All 52 cards are taken, so any in-range card is a duplicate too. Just confirm length stays 52.)
+    expect(reducePlacement(refilled, { type: 'PLACE', card: 0 }).placed.length).toBe(52);
   });
 });
 
@@ -76,6 +94,10 @@ describe('reducePlacement: CLEAR', () => {
     const cleared = reducePlacement(s, { type: 'CLEAR' });
     expect(cleared.placed).toEqual([]);
   });
+
+  it('is a no-op on empty state', () => {
+    expect(reducePlacement(empty, { type: 'CLEAR' })).toBe(empty);
+  });
 });
 
 describe('reducePlacement: HYDRATE', () => {
@@ -102,5 +124,24 @@ describe('isComplete', () => {
     expect(isComplete(s)).toBe(false);
     s = reducePlacement(s, { type: 'PLACE', card: 51 });
     expect(isComplete(s)).toBe(true);
+  });
+});
+
+describe('placedSet', () => {
+  it('returns a Set of placed cards', () => {
+    let s = reducePlacement(empty, { type: 'PLACE', card: 5 });
+    s = reducePlacement(s, { type: 'PLACE', card: 8 });
+    const set = placedSet(s);
+    expect(set.has(5)).toBe(true);
+    expect(set.has(8)).toBe(true);
+    expect(set.has(0)).toBe(false);
+    expect(set.size).toBe(2);
+  });
+
+  it('returns a snapshot, not a live view', () => {
+    let s = reducePlacement(empty, { type: 'PLACE', card: 5 });
+    const set = placedSet(s);
+    s = reducePlacement(s, { type: 'PLACE', card: 8 });
+    expect(set.size).toBe(1);
   });
 });

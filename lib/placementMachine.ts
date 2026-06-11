@@ -16,6 +16,7 @@ export function initialPlacement(): PlacementState {
 }
 
 function snapshotIsValid(placed: number[]): boolean {
+  if (!Array.isArray(placed)) return false;
   if (placed.length > DECK_SIZE) return false;
   const seen = new Set<number>();
   for (const v of placed) {
@@ -40,6 +41,7 @@ export function reducePlacement(
       return { placed: [...state.placed, action.card] };
     }
     case 'REMOVE_AT': {
+      if (!Number.isInteger(action.index)) return state;
       if (action.index < 0 || action.index >= state.placed.length) return state;
       return {
         placed: state.placed.filter((_, i) => i !== action.index),
