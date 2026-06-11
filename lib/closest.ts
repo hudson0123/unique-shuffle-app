@@ -18,6 +18,11 @@ export function findClosestMatch(
   let best: ClosestMatch | null = null;
 
   for (const c of candidates) {
+    if (c.sequence.length !== target.length) {
+      throw new Error(
+        `Candidate id=${c.id} sequence length ${c.sequence.length} does not match target length ${target.length}`,
+      );
+    }
     let matches = 0;
     for (let i = 0; i < target.length; i++) {
       if (target[i] === c.sequence[i]) matches += 1;

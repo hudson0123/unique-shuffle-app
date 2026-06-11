@@ -44,4 +44,14 @@ describe('findClosestMatch', () => {
     ];
     expect(findClosestMatch(sorted, candidates)!.matchCount).toBe(52);
   });
+
+  it('returns the only candidate when there is one', () => {
+    const only = { id: 5, sequence: [...sorted], createdAt: new Date() };
+    expect(findClosestMatch(sorted, [only])!.id).toBe(5);
+  });
+
+  it('throws if a candidate sequence has a different length than the target', () => {
+    const bad = { id: 9, sequence: [0, 1, 2], createdAt: new Date() };
+    expect(() => findClosestMatch(sorted, [bad])).toThrow(/length/);
+  });
 });
