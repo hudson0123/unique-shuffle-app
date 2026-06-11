@@ -8,7 +8,7 @@ type Props = {
 
 export function CardGrid({ placed, onPlace }: Props) {
   return (
-    <div className="inline-grid grid-cols-13 gap-1.5">
+    <div className="inline-grid grid-cols-13 gap-0.5 sm:gap-1 lg:gap-1.5">
       {SUITS.map((suit) =>
         RANKS.map((rank) => {
           const card = encodeCard(suit.id, rank.id);

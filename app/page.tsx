@@ -105,9 +105,9 @@ export default function Home() {
   const placedSetRef = placedSet(state);
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-8">
-      <header className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Unique Shuffle</h1>
+    <main className="mx-auto w-full max-w-6xl px-3 sm:px-4 py-4 sm:py-8">
+      <header className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">Unique Shuffle</h1>
         <p className="text-sm text-zinc-600 mt-1">
           Enter the order of your shuffled deck. Tap the cards in the grid in
           the order they appear from the top of your deck. We&rsquo;ll tell you
@@ -115,7 +115,7 @@ export default function Home() {
         </p>
       </header>
 
-      <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
+      <div className="flex flex-col gap-4 sm:gap-8 lg:flex-row lg:gap-12">
         <section aria-label="Card grid" className="flex-1">
           <CardGrid placed={placedSetRef} onPlace={(c) => dispatch({ type: 'PLACE', card: c })} />
         </section>

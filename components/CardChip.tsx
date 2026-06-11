@@ -11,11 +11,27 @@ type Props = {
 };
 
 const sizeFor: Record<Variant, string> = {
-  grid: 'w-14 h-16',
-  'grid-placed': 'w-14 h-16',
-  list: 'w-12 h-14',
-  strip: 'w-8 h-10',
-  'match-hit': 'w-8 h-10',
+  grid: 'w-6 h-9 sm:w-12 sm:h-14 lg:w-14 lg:h-16',
+  'grid-placed': 'w-6 h-9 sm:w-12 sm:h-14 lg:w-14 lg:h-16',
+  list: 'w-10 h-12 sm:w-12 sm:h-14',
+  strip: 'w-7 h-9 sm:w-8 sm:h-10',
+  'match-hit': 'w-7 h-9 sm:w-8 sm:h-10',
+};
+
+const rankTextFor: Record<Variant, string> = {
+  grid: 'text-[10px] sm:text-sm lg:text-base',
+  'grid-placed': 'text-[10px] sm:text-sm lg:text-base',
+  list: 'text-xs sm:text-base',
+  strip: 'text-[10px] sm:text-xs',
+  'match-hit': 'text-[10px] sm:text-xs',
+};
+
+const suitTextFor: Record<Variant, string> = {
+  grid: 'text-xs sm:text-base lg:text-lg',
+  'grid-placed': 'text-xs sm:text-base lg:text-lg',
+  list: 'text-sm sm:text-lg',
+  strip: 'text-xs sm:text-sm',
+  'match-hit': 'text-xs sm:text-sm',
 };
 
 export function CardChip({
@@ -48,8 +64,8 @@ export function CardChip({
 
   const content = (
     <>
-      <span className={`text-base ${color}`}>{rankLabel}</span>
-      <span className={`text-lg ${color}`}>{suitInfo.symbol}</span>
+      <span className={`${rankTextFor[variant]} ${color}`}>{rankLabel}</span>
+      <span className={`${suitTextFor[variant]} ${color}`}>{suitInfo.symbol}</span>
     </>
   );
 
