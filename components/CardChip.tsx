@@ -11,8 +11,8 @@ type Props = {
 };
 
 const sizeFor: Record<Variant, string> = {
-  grid: 'w-6 h-9 sm:w-12 sm:h-14 lg:w-14 lg:h-16',
-  'grid-placed': 'w-6 h-9 sm:w-12 sm:h-14 lg:w-14 lg:h-16',
+  grid: 'w-7 h-9 sm:w-12 sm:h-14 lg:w-14 lg:h-16',
+  'grid-placed': 'w-7 h-9 sm:w-12 sm:h-14 lg:w-14 lg:h-16',
   list: 'w-10 h-12 sm:w-12 sm:h-14',
   slot: 'w-full h-full',
   strip: 'w-7 h-9 sm:w-8 sm:h-10',
