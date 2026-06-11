@@ -156,7 +156,7 @@ export default function Home() {
             type="button"
             onClick={onSubmit}
             disabled={!isComplete(state) || pending}
-            className="w-full mb-4 py-3 rounded-md bg-zinc-900 text-white font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+            className={"w-full mb-4 py-3 rounded-md bg-zinc-900 text-white font-medium disabled:opacity-40 disabled:cursor-not-allowed" + (pending ? " opacity-40 cursor-not-allowed" : " bg-green-600 hover:bg-green-700")}
           >
             {pending ? 'Submitting…' : 'Submit shuffle'}
           </button>
