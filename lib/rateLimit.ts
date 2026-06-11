@@ -28,7 +28,10 @@ export async function recordAndCheckRateLimit(
     })
     .returning({ count: rateLimits.count });
 
-  const newCount = result[0]?.count ?? 0;
+  const newCount = result[0]?.count;
+  if (newCount === undefined) {
+    throw new Error('Rate limit upsert returned no rows');
+  }
   if (newCount > RATE_LIMIT_PER_HOUR) {
     throw new RateLimitError();
   }
