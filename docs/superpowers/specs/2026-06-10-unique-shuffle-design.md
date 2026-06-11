@@ -100,7 +100,9 @@ Each module has a single clear purpose. `deck.ts`, `stats.ts`, and `closest.ts` 
 | `window_start` | `timestamptz` | PK part 2 | start of the current bucket |
 | `count` | `int` | NOT NULL | submissions seen in this window |
 
-Policy: 10 submissions per IP per hour. Window granularity is 1 hour; we keep at most one row per (ip, window_start). Rows older than 24 hours are eligible for cleanup (cron or lazy delete on write).
+Policy: 60 submissions per IP per hour. Window granularity is 1 hour; we keep at most one row per (ip, window_start). Rows older than 24 hours are eligible for cleanup (cron or lazy delete on write).
+
+This cap is friendly to legitimate users (≈1 submit/minute sustained, accommodates shared IPs from mobile carriers and corporate networks) and accepts that an abuser at full rate adds ~525k rows/year. Storage is cheap; the real cost driver is the O(N) closest-match scan, which grows linearly with row count. See "Scaling notes" below.
 
 ### Canonical card encoding
 
@@ -216,7 +218,7 @@ For v1's expected row counts (low thousands at most), the scan-in-app approach i
 Postgres-backed limiter in `lib/rateLimit.ts`:
 - IP is read from `x-forwarded-for` header (Vercel sets this).
 - Window: 1 hour, bucketed to the start of the current hour (`date_trunc('hour', now())`).
-- Policy: max 10 submissions per IP per window.
+- Policy: max 60 submissions per IP per window.
 - Implementation: `INSERT INTO rate_limits (ip, window_start, count) VALUES ($1, $2, 1) ON CONFLICT (ip, window_start) DO UPDATE SET count = rate_limits.count + 1 RETURNING count`. If returned count > 10, the limiter throws.
 - Cleanup: a small lazy-delete on every write removes rows older than 24 hours for that IP.
 
@@ -240,15 +242,26 @@ Integration tests for the submit flow against a test database (Neon branch or lo
 - Fresh submit → row appears, hash matches
 - Duplicate submit → second submit sees `matched: true`, no second row created
 - Concurrent identical submits → exactly one row created
-- Rate limit → 11th submit in the same hour from the same IP is rejected
+- Rate limit → 61st submit in the same hour from the same IP is rejected
 
 UI is exercised by hand for v1; explicit E2E tests are deferred.
+
+## Scaling notes (deferred)
+
+The closest-match scan is the cost driver as the table grows. Mitigation order, applied only when measured query latency justifies it:
+
+1. Bound the scan by recency: `ORDER BY created_at DESC LIMIT N` (loses access to ancient submissions but keeps p95 latency flat).
+2. Move the scan to a background job; store the closest match alongside each new row at submit time.
+3. Gate the closest-match panel (and other heavy result-page sections) behind a paywall while the free tier returns only the verdict + rarity + stats.
+
+No work needed for v1 — the design is shaped so the closest-match function is a single swappable module.
 
 ## Open questions / deferred items
 
 - Image share cards (Open Graph image) — deferred to v2
 - A leaderboards/explore page over computed stats — deferred to v2
-- Closest-match optimization for high row counts — deferred until needed
+- Closest-match optimization (see Scaling notes) — deferred until measured latency justifies it
+- Paywall / pricing model — deferred; only relevant if the database grows enough that the closest-match scan becomes a real cost
 - Pruning very old `rate_limits` rows beyond the lazy-delete — deferred
 
 ## Implementation notes for next stage
