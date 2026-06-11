@@ -29,25 +29,28 @@ export async function submitShuffleAgainst(
 
   const hash = hashSequence(sequence);
 
-  const inserted = await db
-    .insert(shuffles)
-    .values({ hash, sequence })
-    .onConflictDoNothing({ target: shuffles.hash })
-    .returning({ id: shuffles.id });
-
-  if (inserted.length > 0) {
-    return { hash, via: 'new' };
-  }
-
   const existing = await db
     .select({ id: shuffles.id })
     .from(shuffles)
     .where(eq(shuffles.hash, hash))
     .limit(1);
 
-  if (existing.length === 0) {
-    throw new Error('Submission conflicted but row not found');
+  if (existing.length > 0) {
+    return { hash, via: 'match' };
   }
 
-  return { hash, via: 'match' };
+  try {
+    await db.insert(shuffles).values({ hash, sequence });
+    return { hash, via: 'new' };
+  } catch (e) {
+    const recheck = await db
+      .select({ id: shuffles.id })
+      .from(shuffles)
+      .where(eq(shuffles.hash, hash))
+      .limit(1);
+    if (recheck.length > 0) {
+      return { hash, via: 'match' };
+    }
+    throw e;
+  }
 }

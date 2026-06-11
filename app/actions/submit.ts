@@ -16,5 +16,10 @@ export async function submitShuffle(sequence: number[]): Promise<SubmitResult> {
   const headerList = await headers();
   const ip = readIp(headerList);
   const db = getDb();
-  return submitShuffleAgainst(db, sequence, ip);
+  try {
+    return await submitShuffleAgainst(db, sequence, ip);
+  } catch (e) {
+    console.error('submitShuffle failed', e);
+    throw e;
+  }
 }
